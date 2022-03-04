@@ -1,0 +1,46 @@
+2*4-7
+3/2+20
+1+2*3/4
+2*3-7+36
+
+var x = PI/2
+var y = 0
+var z = 23
+x+y+z
+
+sin(x) + cos(y) + tan(0.1*PI)
+
+log2(x) + log10(y+2)
+log2(x*z+12)
+log10(z**2*3)
+
+PI
+
+(2*3-2)!
+
+2*(41 mod 12)-23
+
+2**3**2
+
+var a = mi_to_km 23
+km_to_mi a
+
+floor(km_to_mi 35)*2
+
+12*6-ceil(x)
+
+(3*x+z)-floor(x)
+
+abs(-23)
+
+gbp_to_usd 10
+usd_to_gbp 12
+
+euro_to_gbp 14
+gbp_to_euro (2*4+12)
+
+euro_to_usd 10
+usd_to_euro (2*3-7+36)
+
+cel_to_fah (2/3+7-36)
+fah_to_cel 9

@@ -1,0 +1,110 @@
+%{
+
+#include <iostream>
+#include <cmath>
+#include <unordered_map>
+std::unordered_map <std::string, float> hashmap;
+int yylex();
+void yyerror(const char *p) {std::cout << "Error: " << p << std::endl;};
+
+%}
+
+%union {
+
+float val;
+char *str;
+
+};
+
+%start prog
+%token <val> LBR RBR EOL
+%token <val> FLO CEI MOD SIN COS TAN FACT SQRT LOG2 LOG10 ABS POW
+%token <val> PLUS MIN MUL DIV EQ
+%token <val> PTOD DTOP ETOP PTOE ETOD DTOE MTOK KTOM CFAH FAHC
+%token <val> NUM PI
+%token <val> VAR_KEYWORD
+%token <str> VAR
+
+%type <val> assignment calculation constant expr term factor line prog
+
+
+%left MIN PLUS
+%left MUL DIV
+%left FACT
+%right POW
+%right LOG2 LOG10 SQRT ABS CEI FLO SIN COS TAN PTOD DTOP ETOP PTOE DTOE ETOD KTOM MTOK CFAH FAHC
+
+%%
+
+prog : /*epsilon*/
+|	prog line
+;
+
+line : calculation EOL {std::cout << $1 << std::endl;}
+|	EOL
+;
+
+calculation : expr /*{std::cout << "reacing here expr " << $1 << std::endl;}*/
+|	assignment
+
+constant : PI {$$ = 3.14;}
+
+expr : expr PLUS term {$$ = $1 + $3;}
+| 	expr MIN term {$$ = $1 - $3;}
+| 	term /*{std::cout << "reacing here term " << $1 << std::endl;}*/
+;
+
+term : factor POW term {$$ = pow($1, $3);}
+|	term MUL factor {$$ = $1 * $3;}
+| 	term DIV factor {$$ = $1 / $3;}
+|	term MOD factor {$$ = static_cast<int>($1) % static_cast<int>($3);} /* check util.h */
+| 	factor /*{std::cout << "reacing here factor " << $1 << std::endl;}*/
+;
+
+factor : NUM /*{std::cout << "reacing here NUM " << $1 << std::endl;}*/
+|	constant
+|	MIN expr {$$ = -1 * $2;}
+| 	LBR expr RBR {$$ = $2;}
+|	LOG2 LBR expr RBR {$$ = log2($3);}
+|	LOG10 LBR expr RBR {$$ = log10($3);}
+|	LBR expr RBR FACT {$$ = $2 * tgamma($2);} /* here lies the problem */
+|	SQRT LBR expr RBR {$$ = std::sqrt($3);}
+|	ABS LBR expr RBR {$$ = std::abs($3);}
+|	CEI LBR expr RBR {$$ = std::ceil($3);}
+|	SIN LBR expr RBR {$$ = std::sin($3);}
+|	COS LBR expr RBR {$$ = std::cos($3);}
+|	TAN LBR expr RBR {$$ = std::tan($3);}
+|	FLO LBR expr RBR {$$ = std::floor($3);}
+|	PTOD factor {$$ = 1.57 * $2;}
+|	DTOP factor {$$ = 0.64 * $2;}
+|	ETOP factor {$$ = 0.79 * $2;}
+|	PTOE factor {$$ = 1.26 * $2;}
+|	ETOD factor {$$ = 1.24 * $2;}
+|	DTOE factor {$$ = 0.80 * $2;}
+|	KTOM factor {$$ = 0.62137 * $2;}
+|	MTOK factor {$$ = $2 / 0.62137;}
+|	CFAH factor {$$ = ($2 * 1.8) + 32;}
+|	FAHC factor {$$ = ($2 - 32) / 1.8;}
+|	VAR {if (hashmap.find($1) == hashmap.end())
+				{
+					yyerror("Variable not defined!");
+					exit(1);
+				}
+		else{
+			$$ = hashmap[$1];
+		}
+		free($1);
+		}
+;
+
+assignment : VAR_KEYWORD VAR EQ calculation {hashmap[$2] = $4; free($2); $$ = $4;}
+;
+%%
+
+int main()
+{
+
+	yyparse();
+	return 0;
+
+}
